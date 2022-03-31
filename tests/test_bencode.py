@@ -30,34 +30,68 @@ def test_decode_ok(datadir):
     # Load and decode the source torrent, remove "pieces" key for simplicity
     result = bencode.decode(datadir["big-buck-bunny.torrent"].read("rb"))
     result[b"info"][b"pieces"] = []
+    result[b"piece layers"] = []
+    for file in b"Big Buck Bunny.en.srt", b"Big Buck Bunny.mp4", b"poster.jpg":
+        result[b"info"][b"file tree"][file][b""][b"pieces root"] = b""
 
     assert result == {
         b"announce": b"udp://tracker.leechers-paradise.org:6969",
         b"announce-list": [
-            [b"udp://tracker.leechers-paradise.org:6969"],
-            [b"udp://tracker.coppersurfer.tk:6969"],
-            [b"udp://tracker.opentrackr.org:1337"],
-            [b"udp://explodie.org:6969"],
-            [b"udp://tracker.empire-js.us:1337"],
-            [b"wss://tracker.btorrent.xyz"],
-            [b"wss://tracker.openwebtorrent.com"],
-            [b"wss://tracker.fastcast.nz"],
+            [
+                b"udp://tracker.leechers-paradise.org:6969",
+                b"udp://tracker.coppersurfer.tk:6969",
+                b"udp://tracker.opentrackr.org:1337",
+                b"udp://explodie.org:6969",
+                b"udp://tracker.empire-js.us:1337",
+                b"wss://tracker.btorrent.xyz",
+                b"wss://tracker.openwebtorrent.com",
+                b"wss://tracker.fastcast.nz",
+            ]
         ],
-        b"comment": b"WebTorrent <https://webtorrent.io>",
-        b"created by": b"WebTorrent <https://webtorrent.io>",
-        b"creation date": 1490916601,
-        b"encoding": b"UTF-8",
+        b"creation date": 1648693526,
         b"info": {
+            b"file tree": {
+                b"Big Buck Bunny.en.srt": {
+                    b"": {
+                        b"length": 140,
+                        b"pieces root": b"",
+                    }
+                },
+                b"Big Buck Bunny.mp4": {
+                    b"": {
+                        b"length": 276134947,
+                        b"pieces root": b"",
+                    }
+                },
+                b"poster.jpg": {
+                    b"": {
+                        b"length": 310380,
+                        b"pieces root": b"",
+                    }
+                },
+            },
             b"files": [
                 {b"length": 140, b"path": [b"Big Buck Bunny.en.srt"]},
+                {
+                    b"attr": b"p",
+                    b"length": 262004,
+                    b"path": [b".pad", b"262004"],
+                },
                 {b"length": 276134947, b"path": [b"Big Buck Bunny.mp4"]},
+                {
+                    b"attr": b"p",
+                    b"length": 164829,
+                    b"path": [b".pad", b"164829"],
+                },
                 {b"length": 310380, b"path": [b"poster.jpg"]},
             ],
+            b"meta version": 2,
             b"name": b"Big Buck Bunny",
             b"piece length": 262144,
             b"pieces": [],
         },
-        b"url-list": [b"https://webtorrent.io/torrents/"],
+        b"url-list": b"https://webtorrent.io/torrents/",
+        b"piece layers": [],
     }
 
 

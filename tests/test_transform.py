@@ -16,21 +16,25 @@ def test_transform_bencode_data_2(datadir):
     torrent_data = datadir["big-buck-bunny.torrent"].read("rb")
     torrent_data_dec = bencode.decode(torrent_data)
     torrent_data_dec[b"info"].pop(b"pieces")
+    torrent_data_dec.pop(b"piece layers")
+    for file in b"Big Buck Bunny.en.srt", b"Big Buck Bunny.mp4", b"poster.jpg":
+        torrent_data_dec[b"info"][b"file tree"][file][b""].pop(b"pieces root")
     data_as_string = bencode.be_to_str(bencode.encode(torrent_data_dec))
     assert data_as_string == (
         "d8:announce40:udp://tracker.leechers-paradise.org:696913:"
-        "announce-listll40:udp://tracker.leechers-paradise.org:"
-        "6969el34:udp://tracker.coppersurfer.tk:6969el33:udp://"
-        "tracker.opentrackr.org:1337el23:udp://explodie.org:6969el31:"
-        "udp://tracker.empire-js.us:1337el26:wss://tracker."
-        "btorrent.xyzel32:wss://tracker.openwebtorrent.comel25:wss:"
-        "//tracker.fastcast.nzee7:comment34:WebTorrent <https://"
-        "webtorrent.io>10:created by34:WebTorrent <https://webtorrent."
-        "io>13:creation datei1490916601e8:encoding5:UTF-84:infod5:filesld6:"
-        "lengthi140e4:pathl21:Big Buck Bunny.en.srteed6:lengthi276134947e4:"
-        "pathl18:Big Buck Bunny.mp4eed6:lengthi310380e4:pathl10:poster."
-        "jpgeee4:name14:Big Buck Bunny12:piece lengthi262144ee8:url-listl31:"
-        "https://webtorrent.io/torrents/ee"
+        "announce-listll40:udp://tracker.leechers-paradise.org:696934:udp://"
+        "tracker.coppersurfer.tk:696933:udp://tracker.opentrackr.org:133723:"
+        "udp://explodie.org:696931:udp://tracker.empire-js.us:133726:wss://"
+        "tracker.btorrent.xyz32:wss://tracker.openwebtorrent.com25:wss://"
+        "tracker.fastcast.nzee13:creation datei1648693526e4:infod9:"
+        "file treed21:Big Buck Bunny.en.srtd0:d6:lengthi140eee18:"
+        "Big Buck Bunny.mp4d0:d6:lengthi276134947eee10:poster.jpgd0:d6:"
+        "lengthi310380eeee5:filesld6:lengthi140e4:pathl21:"
+        "Big Buck Bunny.en.srteed4:attr1:p6:lengthi262004e4:pathl4:.pad6:"
+        "262004eed6:lengthi276134947e4:pathl18:Big Buck Bunny.mp4eed4:attr1:"
+        "p6:lengthi164829e4:pathl4:.pad6:164829eed6:lengthi310380e4:pathl10:"
+        "poster.jpgeee12:meta versioni2e4:name14:Big Buck Bunny12:"
+        "piece lengthi262144ee8:url-list31:https://webtorrent.io/torrents/e"
     )
 
 

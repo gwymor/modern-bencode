@@ -4,7 +4,9 @@ from typing import Any
 from bencode.bencode import decode, encode
 
 
-def _decode_object(data: Any, encoding: str, errors: str) -> Any:
+def _decode_object(
+    data: Any, encoding: str, errors: str, within_piece_layers: bool = False
+) -> Any:
     """Replace bytes with strings in the provided Python object"""
     if isinstance(data, bytes):
         return data.decode(encoding, errors)
@@ -12,13 +14,23 @@ def _decode_object(data: Any, encoding: str, errors: str) -> Any:
     if isinstance(data, dict):
         result_dict = {}
         for key, value in data.items():
+            if within_piece_layers:
+                decoded_key = key.hex()
+                decoded_value = value.hex()
+                result_dict[decoded_key] = decoded_value
+                continue
             decoded_key = _decode_object(key, encoding, errors)
             if decoded_key.endswith(".utf-8"):
                 decoded_value = _decode_object(value, "utf8", errors)
-            elif decoded_key in ["ed2k", "filehash", "pieces"]:
+            elif decoded_key in ["ed2k", "filehash", "pieces", "pieces root"]:
                 decoded_value = value.hex()
             else:
-                decoded_value = _decode_object(value, encoding, errors)
+                decoded_value = _decode_object(
+                    value,
+                    encoding,
+                    errors,
+                    within_piece_layers=decoded_key == "piece layers",
+                )
             result_dict[decoded_key] = decoded_value
         return result_dict
 
@@ -28,7 +40,9 @@ def _decode_object(data: Any, encoding: str, errors: str) -> Any:
     return data
 
 
-def _encode_object(data: Any, encoding: str, errors: str) -> Any:
+def _encode_object(
+    data: Any, encoding: str, errors: str, within_piece_layers: bool = False
+) -> Any:
     """Replace strings with bytes in the provided Python object"""
     if isinstance(data, str):
         return data.encode(encoding, errors)
@@ -36,13 +50,28 @@ def _encode_object(data: Any, encoding: str, errors: str) -> Any:
     if isinstance(data, dict):
         result_dict = {}
         for key, value in data.items():
+            if within_piece_layers:
+                encoded_key = bytes.fromhex(key)
+                encoded_value = bytes.fromhex(value)
+                result_dict[encoded_key] = encoded_value
+                continue
             encoded_key = _encode_object(key, encoding, errors)
             if encoded_key.endswith(b".utf-8"):
                 encoded_value = _encode_object(value, "utf8", errors)
-            elif encoded_key in [b"ed2k", b"filehash", b"pieces"]:
+            elif encoded_key in [
+                b"ed2k",
+                b"filehash",
+                b"pieces",
+                b"pieces root",
+            ]:
                 encoded_value = bytes.fromhex(value)
             else:
-                encoded_value = _encode_object(value, encoding, errors)
+                encoded_value = _encode_object(
+                    value,
+                    encoding,
+                    errors,
+                    within_piece_layers=encoded_key == b"piece layers",
+                )
             result_dict[encoded_key] = encoded_value
         return result_dict
 
